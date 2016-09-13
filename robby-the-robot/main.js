@@ -20,7 +20,7 @@ function Queue(){
         self.queue.unshift(value);
 
         self.queue.sort(function(cellA, cellB) {
-            return cellB.path.length - cellA.path.length;
+            var result = cellB.path.length - cellA.path.length;
         });
     };
 
@@ -96,7 +96,7 @@ function Processor(fieldForCalcs, power){
 
         var currentCell = self.queue.pop();
 
-        while(currentCell && currentCell.iteration <= self.power)
+        while(currentCell && currentCell.path.length <= self.power)
         {
             var currentDirection = currentCell.direction || DIRECTIONS.TOP;
             currentCell.neighbors.forEach(function(neighbor){
@@ -105,7 +105,8 @@ function Processor(fieldForCalcs, power){
                 resultedPath = currentCell.path.concat(resultedPath);
 
                 var neighborCell = neighbor.cell;
-                if(neighborCell.path.length === 0 ||neighborCell.path.length > resultedPath.length){
+                if(resultedPath.length <= self.power && (neighborCell.path.length === 0
+                    || neighborCell.path.length > resultedPath.length)){
                     neighborCell.path = resultedPath.slice();
                     neighborCell.iteration = currentCell.iteration + 1;
                     neighborCell.direction = neighbor.direction;
