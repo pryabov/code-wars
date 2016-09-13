@@ -20,7 +20,7 @@ function Queue(){
         self.queue.unshift(value);
 
         self.queue.sort(function(cellA, cellB) {
-            return cellA.path.length - cellB.path.length;
+            return cellB.path.length - cellA.path.length;
         });
     };
 
@@ -108,6 +108,7 @@ function Processor(fieldForCalcs, power){
                 if(neighborCell.path.length === 0 ||neighborCell.path.length > resultedPath.length){
                     neighborCell.path = resultedPath.slice();
                     neighborCell.iteration = currentCell.iteration + 1;
+                    neighborCell.direction = neighbor.direction;
 
                     self.queue.push(neighborCell);
                 }
@@ -116,7 +117,10 @@ function Processor(fieldForCalcs, power){
             currentCell = self.queue.pop();
         }
 
-        return self.field.finishCell.path;
+        if(self.field.finishCell.path && self.field.finishCell.path.length <= self.power) {
+            return self.field.finishCell.path;
+        }
+        return [];
     };
 
     this.calculateRotation = function(currentDirection, targetDirection){
