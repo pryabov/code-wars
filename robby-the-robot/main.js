@@ -1,16 +1,21 @@
-var DIRECTIONS = Object.freeze({
+//region Constants
+
+const DIRECTIONS = {
     TOP: 0,
     RIGHT: 90,
     BOTTOM: 180,
     LEFT: 270
-});
+};
 
-var COMMANDS = Object.freeze({
+const COMMANDS = {
     TURN_RIGHT: 'r',
     TURN_LEFT: 'l',
     MOVE_FORWARDS: 'f'
-});
+};
 
+//endregion
+
+//Sorted queue
 function Queue(){
     var self = this;
 
@@ -29,12 +34,13 @@ function Queue(){
     };
 }
 
-
+//Cell Neighbor (Edge between two cells)
 function CellNeighbor(neighboar, direction){
     this.direction = direction;
     this.cell = neighboar;
 }
 
+//Grid Cell representation
 function Cell(value){
     this.cellValue = value;
     this.direction = undefined;
@@ -44,6 +50,7 @@ function Cell(value){
     this.neighbors = [];
 }
 
+//Input Field
 function Field(initialStr){
     var self = this;
 
@@ -82,6 +89,7 @@ function Field(initialStr){
     }
 }
 
+//Processor
 function Processor(fieldForCalcs, power){
     var self = this;
 
@@ -90,6 +98,7 @@ function Processor(fieldForCalcs, power){
 
     this.queue = new Queue();
 
+    //Calculate the fastest solution
     this.calculate = function(){
         self.field.startCell.iteration = 0;
         self.queue.push(self.field.startCell);
@@ -118,33 +127,25 @@ function Processor(fieldForCalcs, power){
             currentCell = self.queue.pop();
         }
 
-        if(self.field.finishCell.path && self.field.finishCell.path.length <= self.power) {
-            return self.field.finishCell.path;
-        }
-        return [];
+        return self.field.finishCell.path;
     };
 
+    //Calculate rotation sequence
     this.calculateRotation = function(currentDirection, targetDirection){
-        var resultedDegrees = Math.abs(targetDirection - currentDirection);
-        if(360 - resultedDegrees < resultedDegrees)
-        {
-            resultedDegrees = - (360 - resultedDegrees);
-        }
+        const ROTATE_SEQUENCE = {
+            0: [],
+            90: ['l'],
+            180: ['r','r'],
+            270: ['r']
+        };
 
-        var rotationDirection = COMMANDS.TURN_RIGHT;
-        if(resultedDegrees < 0){
-            rotationDirection = COMMANDS.TURN_LEFT;
-        }
+        var resultedDegrees = (currentDirection - targetDirection + 360) % 360;
 
-        var countOrRotations = resultedDegrees / 90;
-        var result = [];
-        for(var i = 0; i < countOrRotations; i++){
-            result.push(rotationDirection);
-        }
-        return result;
+        return ROTATE_SEQUENCE[resultedDegrees];
     };
 }
 
+// test endpoint
 function getCommands(field, power) {
     var processor = new Processor(field, power);
     var result = processor.calculate();
@@ -153,6 +154,6 @@ function getCommands(field, power) {
 
 
 //getCommands('T.S.', 10).join('') == 'f';
-getCommands('S.......T', 10).join('') == 'rffrff';
-getCommands('S.......T', 5).join('') == '';
-getCommands('S#.##...T', 20).join('') == '';
+//getCommands('S.......T', 10).join('') == 'rffrff';
+//getCommands('S.......T', 5).join('') == '';
+//getCommands('S#.##...T', 20).join('') == '';
